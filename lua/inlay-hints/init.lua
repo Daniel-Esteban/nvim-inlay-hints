@@ -10,26 +10,40 @@ local dict = {
   rust = rust_analyzer,
 }
 
+-- Generates Rust-analyzer dependant options
+--- @param opts table
+--- @return table Generated options
 local gen_dep_ra = function(opts)
   local ra = {
     highlight = opts.highlight,
-    p_type = opts.prefix,
-    p_param = opts.prefix,
-    s_type = opts.suffix,
-    s_param = opts.suffix,
+    kinds = {
+      type = {
+        prefix = opts.kinds.type.prefix,
+        suffix = opts.kinds.type.suffix,
+      },
+      parameter = {
+        prefix = opts.kinds.parameter.prefix,
+        suffix = opts.kinds.parameter.suffix,
+      },
+    },
   }
   return ra
 end
 
+-- Generates Rust-Analyzer dependant options
+--- @see |gen_dep_ra()|
 local gen_dependant_opts = function()
   globals.rust_analyzer = gen_dep_ra(globals.global)
 end
 
+-- Setups inlay-hints plugin
+--- @param opts table Plugin options
+--- @param enabled boolean Whether it displays inlay hints or not
 M.setup = function(opts, enabled)
   cache.display = enabled or true
   opts = opts or {}
   if opts.global then
-    globals.global = vim.tbl_extend('force', globals.global, opts.global)
+    globals.global = vim.tbl_deep_extend('force', globals.global, opts.global)
   end
 
   internal.create_namespace()
@@ -48,6 +62,9 @@ M.on_attach = function(client, bufnr)
   end
 end
 
+-- Toggles inlay hints in buffer
+---@param opts table
+---@param client any
 M.toggle = function(opts, client)
   opts = opts or globals
   local ft = vim.bo.filetype
@@ -56,6 +73,8 @@ M.toggle = function(opts, client)
   end
 end
 
+-- Enables inlay hints in buffer
+---@param opts table
 M.enable = function(opts)
   opts = opts or globals
   local ft = vim.bo.filetype
@@ -64,7 +83,10 @@ M.enable = function(opts)
   end
 end
 
+-- Disables inlay hints in buffer bufnr
+---@param bufnr buffer
 M.disable = function(bufnr)
-  helper.disable_hints(bufnr)
+  local ns_id = internal.namespace
+  helper.disable_hints(bufnr, ns_id)
 end
 return M

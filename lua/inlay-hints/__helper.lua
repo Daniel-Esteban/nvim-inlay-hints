@@ -1,9 +1,15 @@
 local M = {}
 
+---Gets last line number of a buffer
+---@param bufnr buffer
+---@return number #Last line number of the buffer
 M.get_last_line = function(bufnr)
   return vim.api.nvim_buf_line_count(bufnr) - 1
 end
 
+---Disables inlay_hints for namespace ns
+---@param bufnr buffer
+---@param ns number
 M.disable_hints = function(bufnr, ns)
   vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
 end

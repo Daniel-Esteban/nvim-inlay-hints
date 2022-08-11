@@ -18,8 +18,16 @@ end
 
 local g_opts = {
   highlight = 'Comment',
-  prefix = ': ',
-  suffix = '',
+  kinds = {
+    type = {
+      prefix = ': ',
+      suffix = '',
+    },
+    parameter = {
+      prefix = '`',
+      suffix = '`',
+    },
+  },
 }
 local ra_opts = {}
 local opts = {

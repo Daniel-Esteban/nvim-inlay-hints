@@ -29,8 +29,16 @@ local callback = function(err, result, ctx)
     local pos = entry.position
     local vtext_id = helper.get_id(pos.line, pos.character)
     if display then
-      -- TODO: Differentiate between kinds
-      local label = config.p_type .. entry.tooltip .. config.s_type
+      local label = ''
+      if entry.kind == 1 then --type
+        local opt = config.kinds.type
+        label = opt.prefix .. entry.tooltip .. opt.suffix
+      elseif entry.kind == 2 then --parameter
+        local opt = config.kinds.parameter
+        label = opt.prefix .. entry.tooltip .. opt.suffix
+      else -- other
+        label = entry.label
+      end
 
       local opts = {
         id = vtext_id,
@@ -72,6 +80,9 @@ M.on_attach = function(client, bufnr)
   end
 end
 
+---Enables inlay hints in buffer bufnr
+---@param opts table|none
+---@param client any
 M.enable = function(opts, client)
   local bufnr = vim.api.nvim_get_current_buf()
   cache.display = true
@@ -94,12 +105,17 @@ M.enable = function(opts, client)
   end
 end
 
+---Disables inlay hints in buffer bufnr
+---@param bufnr buffer
 M.disable = function(bufnr)
   internal.cache.display = false
   local ns = internal.namespace
   helper.disable_hints(bufnr, ns)
 end
 
+---Toggles inlay hints in buffer bufnr
+---@param opts table
+---@param client any
 M.toggle = function(opts, client)
   local bufnr = vim.api.nvim_get_current_buf()
   M.__cachedopts = {
