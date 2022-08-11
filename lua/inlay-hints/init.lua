@@ -38,7 +38,7 @@ end
 
 -- Setups inlay-hints plugin
 --- @param opts table Plugin options
---- @param enabled boolean Whether it displays inlay hints or not
+--- @param enabled boolean|none Whether it displays inlay hints or not
 M.setup = function(opts, enabled)
   cache.display = enabled or true
   opts = opts or {}
