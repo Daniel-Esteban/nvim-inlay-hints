@@ -1,14 +1,9 @@
-local rust_analyzer = require 'inlay-hints.rust_analyzer'
 local internal = require 'inlay-hints.__internal'
 local helper = require 'inlay-hints.__helper'
 local cache = internal.cache
 local globals = cache.opts
 
 local M = {}
-
-local dict = {
-  rust = rust_analyzer,
-}
 
 -- Generates Rust-analyzer dependant options
 --- @param opts table
@@ -37,7 +32,7 @@ local gen_dependant_opts = function()
 end
 
 -- Setups inlay-hints plugin
---- @param opts table Plugin options
+--- @param opts table|none Plugin options
 --- @param enabled boolean|none Whether it displays inlay hints or not
 M.setup = function(opts, enabled)
   cache.display = enabled or true
@@ -55,10 +50,13 @@ M.setup = function(opts, enabled)
   end
 end
 
+M.client_has_inlay_hints = function(client)
+  return client.server_capabilities.inlayHintProvider
+end
+
 M.on_attach = function(client, bufnr)
-  local ft = vim.api.nvim_buf_get_option(bufnr, 'filetype')
-  if dict[ft] then
-    dict[ft].on_attach(client, bufnr)
+  if M.client_has_inlay_hints(client) then
+    internal.on_attach(client, bufnr)
   end
 end
 
@@ -68,9 +66,7 @@ end
 M.toggle = function(opts, client)
   opts = opts or globals
   local ft = vim.bo.filetype
-  if dict[ft] then
-    dict[ft].toggle(opts[ft], client)
-  end
+  internal.toggle(opts[ft], client)
 end
 
 -- Enables inlay hints in buffer
@@ -78,9 +74,7 @@ end
 M.enable = function(opts)
   opts = opts or globals
   local ft = vim.bo.filetype
-  if dict[ft] then
-    dict[ft].enable(opts[ft])
-  end
+  internal.enable(opts[ft])
 end
 
 -- Disables inlay hints in buffer bufnr
